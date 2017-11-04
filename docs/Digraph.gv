@@ -1,0 +1,43 @@
+digraph {
+	node [shape=record]
+	edge [minlen=1]
+	Individual_User [label="User\n(HTTPS client with APIKEY)"]
+	Devices [label="Devices/Apps\n(HTTPS client with APIKEY)"]
+	Public [label=Public]
+	Public -> PublicCatalogue [label="read only"]
+	Individual_User -> Firewall [xlabel="APIs to search and manage devices/apps\n(secure tunnel)"]
+	Devices -> Firewall [label="APIs to produce/consume data\n(secure tunnel)"]
+{rankdir=LR;Public, Individual_User, Devices}
+	subgraph cluster_0 {
+		graph [color=blue label="[ Middleware ]" shape=record]
+		Persistence [label="{Persistence|Elasticsearch | localhost:'32923'}"]
+		Broker [label="{Broker|RabbitMQ | localhost:'32922'}"]
+		LDAP [label="{Authentication and\nauthorization (AA) server|ldapd | localhost:'32924'}" color=red]
+		CA [label="{Certificate\nAuthority (CA)|OpenSSL | localhost:'32912'}" color=red]
+		PublicCatalogue [label="{Publicly available\nopen catalogue | localhost:'32919'}"]
+		Firewall [label="{API gateway + Firewall cluster \n (Certificates signed by the CA) | kong + iptables | localhost:'32917'}" style=bold]
+		HistoryAnalytics [label="{Historical data \n analytics engine|Apache storm | localhost:'32925'}" color=darkgreen]
+		StreamAnalytics [label="{Stream analytics \n engine|Apache storm}" color=darkgreen]
+		apt_repo [label="{APT Repository|Aptly | localhost:'32914'}" color=darkgreen]
+		DNS [label="{DNS\n(with security extensions)|BIND | localhost:'32927'}" color=darkgreen]
+		NTP [label="{NTP server|OpenNTPD | localhost:'32926'}" color=darkgreen]
+		PolicyEnforcer [label="{Security policy\nenforcer and accounting|Custom scripts}" color=red]
+		Catalogue [label="{Internal Catalogue}"]
+		Validation [label="{Validation\nserver|Apache storm}"]
+		point [shape=point]
+		Broker -> point [arrowhead=none style=dashed]
+		Persistence -> point [arrowhead=none style=dashed]
+		Catalogue -> point [arrowhead=none style=dashed]
+		point -> LDAP [style=dashed]
+		Firewall -> Validation [arrowhead=none]
+		Validation -> Broker
+		Broker -> StreamAnalytics [style=dashed]
+		Validation -> Persistence
+		Validation -> Catalogue
+		Persistence -> HistoryAnalytics [style=dashed]
+		CA -> Firewall [label=Certificates style=dashed]
+	{rank=same; CA;PolicyEnforcer;PublicCatalogue}
+	{rank=same; DNS;LDAP;NTP}
+	{rank=same;HistoryAnalytics;StreamAnalytics}
+	}
+}

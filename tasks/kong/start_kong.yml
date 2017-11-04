@@ -1,0 +1,31 @@
+---
+  # fix: LC_ALL and LANG misssing occurs when computer shutdowns
+  - name: Copy environment file
+    copy:
+      src: ./config/kong/environment
+      dest: /etc/environment
+      mode: 0644
+
+  - name: locale create
+    shell: locale-gen "en_US.UTF-8"
+    become: yes
+    become_user: root
+
+  - name: Start postgresql service
+    service: name=postgresql state=restarted
+
+  - name: Setting up Kong.conf file
+    copy:
+      src: ./config/kong/kong.conf
+      dest: /etc/kong/kong.conf
+      mode: 0644
+
+  - name: Kong migrations on postgresql db
+    command: kong migrations up -c /etc/kong/kong.conf
+
+  - name: Start kong service
+    service: name=kong state=restarted
+    become: yes
+    become_user: root
+
+  - include: tasks/kong/kong_auth_configuration.yml

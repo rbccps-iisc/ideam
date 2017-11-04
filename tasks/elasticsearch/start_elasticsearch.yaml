@@ -1,0 +1,3 @@
+---
+  - name: Start elasticsearch service
+    service: name=elasticsearch state=started

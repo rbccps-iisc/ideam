@@ -1,0 +1,6 @@
+dn: cn=devices,dc=smartcity
+changetype: add
+objectClass: groupOfNames
+objectClass: top
+member: dc=smartcity
+cn: devices

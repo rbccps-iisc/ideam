@@ -1,0 +1,31 @@
+---
+  - name: Start rabbitmq-server
+    service: name=rabbitmq-server state=restarted
+
+  - name: Start supervisor
+    service: name=supervisor state=started
+    become: yes
+    become_user: root
+
+  - name: Reload supervisorctl
+    shell: supervisorctl reload
+    become: yes
+    become_user: root
+
+# If plugin is not needed, make sure to remove the port in the Dockerfile.ubuntu.certified.rabbitmq
+  - name: Enable management plugin
+    shell: rabbitmq-plugins enable rabbitmq_management
+
+  - name: Creating "rbccps" user at RabbitMQ
+    uri:
+      url: http://localhost:15672/api/users/rbccps
+      method: PUT
+      user: "guest"
+      password: "guest"
+      body: {"password": "rbccps@123", "tags": "administrator", "permissions": { "/": { "configure": ".*","read": ".*","write": ".*" } } }
+      status_code: [201, 204]
+      return_content: yes
+      body_format: json
+    register: request
+    until: (request.status == 204) or (request.status == 201)
+    retries: 5

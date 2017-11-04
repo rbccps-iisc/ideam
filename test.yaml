@@ -1,0 +1,5 @@
+---
+- hosts: kong
+  remote_user: ansible
+  tasks:
+  - include: tests/kong_api_pushpin.yml

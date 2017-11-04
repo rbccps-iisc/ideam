@@ -1,0 +1,10 @@
+---
+  - name: Start supervisor
+    service: name=supervisor state=started
+    become: yes
+    become_user: root
+
+  - name: Reload supervisorctl
+    shell: supervisorctl reload
+    become: yes
+    become_user: root

@@ -1,0 +1,5 @@
+dn: dc=smartcity
+changetype: add
+dc: smartcity
+objectClass: dcObject
+objectClass: top

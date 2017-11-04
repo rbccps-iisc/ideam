@@ -1,0 +1,22 @@
+---
+## kong dependencies
+  - name: Kong dependency:- perl
+    apt: name=perl state=present
+
+  - name: Kong dependency:- procps
+    apt: name=procps state=present
+
+  - name: Kong dependency:- openssl
+    apt: name=openssl state=present
+
+  - name: Kong dependency:- libpcre3
+    apt: name=libpcre3 state=present
+
+  - name: Kong dependency:- postgresql
+    apt: name=postgresql state=present
+
+  - name: Kong dependency:- postgresql-contrib
+    apt: name=postgresql-contrib state=present
+
+  - name: Kong dependency:- python-pip
+    apt: name=python-pip state=present
