@@ -1,6 +1,6 @@
 # Smart City Middleware using Docker
 
-A docker based
+
 ### Web Page:
 [http://rbccps.org/smartcity/](http://rbccps.org/smartcity/doku.php)
 
@@ -40,7 +40,7 @@ A docker based
 
 ### Usage:
 
-1. **Installation of smartcity middleware. This process will create all the required
+1. **Installation of smart city middleware. This process will create all the required
 docker containers.**
 
     Please satisfy the requirements mentioned in middleware.conf file.
@@ -50,20 +50,20 @@ docker containers.**
         $ python smartcity-middleware.py install --config-file middleware.conf
 
 
-2. **Start smartcity middleware.**
+2. **Start smart city middleware.**
 
         $ python smartcity-middleware.py start
 
     or run `python smartcity-middleware.py -h` for more details.
 
-3. **Serving Smartcity middleware on** https://localhost:8443
+3. **Serving smart city middleware on** https://localhost:8443
 
     The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as config/kong/default_443.crt and config/kong/default_443.key respectively.
 
 
 ### NOTE:
    Middleware has been tested on macOS as well.
-   After satisfying the requierments, mention `OS=macOS` in middleware.conf. Then follow instructions mentioned in Usage.
+   After satisfying the requirements, mention `OS=macOS` in middleware.conf. Then follow instructions mentioned in Usage.
 
 ### TODO:
 
