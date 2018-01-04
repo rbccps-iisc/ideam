@@ -28,6 +28,7 @@
   vars_files:
     - host_vars/all
   tasks:
+
   - include: tasks/create_user.yml
   - include: tasks/add_local_repository.yml
   - include: tasks/update_repos.yml
@@ -35,17 +36,18 @@
   - name: Add RabbitMQ repository key
     apt_key: url=https://www.rabbitmq.com/rabbitmq-release-signing-key.asc state=present
 
-  - name: Add RabbitMQ repository
-    apt_repository:
-      repo: deb [trusted=yes] http://www.rabbitmq.com/debian/ testing main
-      state: present
-      filename: 'rabbitmq'
-    retries: 5
+  - name: Add rabbitmq official apt repository
+    apt_repository: repo='deb http://www.rabbitmq.com/debian/ testing main' state=present
 
   - include: tasks/update_repos.yml
 
+  - name: ensure python-software-properties is installed
+    apt: name=python-software-properties state=present
+
   - name: Install rabbitmq-server
-    apt: pkg=rabbitmq-server state=present
+    apt: name={{ item }} state=present
+    with_items:
+      - rabbitmq-server
 
   - name: Download Golang v1.9.2
     copy:
@@ -364,22 +366,153 @@
       src: config/elasticsearch/kibana.yml
       dest: /etc/kibana/kibana.yml
 
-
 ## Set up ldapd environment
 - hosts: ldapd
   remote_user: root
   vars_files:
     - host_vars/all
+    - host_vars/ldapd
   tasks:
   - include: tasks/create_user.yml
   - include: tasks/add_local_repository.yml
   - include: tasks/update_repos.yml
 
-  - name: Install slapd
-    apt: pkg=slapd state=present
+  - name: Install git
+    apt: name=git state=present
+
+  - name: Install dh-autoreconf
+    apt: name=dh-autoreconf state=present
+
+  - name: Install byacc
+    apt: name=byacc state=present
+
+  - name: Install flex
+    apt: name=flex state=present
+
+  - name: Install libssl-dev
+    apt: name=libssl-dev state=present
 
   - name: Install ldap-utils
     apt: pkg=ldap-utils state=present
+
+  - name: Install libbsd-dev
+    apt: pkg=libbsd-dev state=present
+
+  - name: Download openbsd-ldapd-portable
+    git:
+      repo: https://github.com/harishanand95/openbsd-ldapd-portable.git
+      dest: /home/ansible/openbsd-ldapd-portable
+    ignore_errors: True
+
+  - name: Download https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
+    get_url:
+      url: https://github.com/libevent/libevent/archive/release-1.4.13-stable.tar.gz
+      dest: /home/ansible/release-1.4.13-stable.tar.gz
+      mode: 0440
+
+  - name: Extract release-1.4.13-stable.tar.gz
+    unarchive:
+        src: /home/ansible/release-1.4.13-stable.tar.gz
+        dest: /home/ansible
+        remote_src: True
+
+  - name: Libevent v1.4.13 autogen.sh
+    command: ./autogen.sh
+    args:
+      chdir: /home/ansible/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 Configure
+    command: ./configure
+    args:
+      chdir: /home/ansible/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 make
+    command: make
+    args:
+      chdir: /home/ansible/libevent-release-1.4.13-stable
+
+  - name: Libevent v1.4.13 make install
+    command: make install
+    args:
+      chdir: /home/ansible/libevent-release-1.4.13-stable
+
+  - name: Openbsd-ldapd-portable bootstrap
+    command: ./bootstrap
+    args:
+      chdir: /home/ansible/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable configure
+    command: ./configure
+    args:
+      chdir: /home/ansible/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable make
+    command: make
+    args:
+      chdir: /home/ansible/openbsd-ldapd-portable
+
+  - name: Openbsd-ldapd-portable make install
+    command: make install
+    args:
+      chdir: /home/ansible/openbsd-ldapd-portable
+    become: true
+
+  - name: Link libevent-1.4.so.2
+    file: src=/usr/local/lib/libevent-1.4.so.2 dest=/usr/lib/libevent-1.4.so.2 state=link
+    become: true
+
+  - name: Create ldapd.conf file
+    copy:
+      src: config/ldapd/ldapd.conf
+      dest: /etc/ldapd.conf
+      mode: 0600
+
+  - name: Create smartcity.ldif file
+    copy:
+      src: config/ldapd/smartcity.ldif
+      dest: /home/ansible
+
+  - name: Create devices.ldif file
+    copy:
+      src: config/ldapd/devices.ldif
+      dest: /home/ansible
+
+  - name: Create /etc/ldap directory
+    file: path=/etc/ldap state=directory
+
+  - name: Create LDAP /var/db directory
+    file: path=/var/db state=directory
+
+  - name: Create MongoDB /var/db/ldap directory
+    file: path=/var/db/ldap state=directory
+
+  - name: Create core.schema file
+    copy:
+      src: config/ldapd/core.schema
+      dest: /etc/ldap
+
+  - name: Create user _ldapd
+    user:
+      name: _ldapd
+      comment: "LDAP daemon"
+      home: /var/db/ldap
+      shell: /sbin/nologin
+      group: root
+    become: true
+
+  - name: Start ldapd
+    shell: ldapd
+    become: true
+
+  - name: Add smartcity.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f smartcity.ldif
+    args:
+      chdir: /home/ansible/
+
+  - name: Add devices.ldif
+    command: ldapmodify -h 127.0.0.1 -p 8389 -x -D cn=admin,dc=smartcity -w {{ ldapd_password }} -f devices.ldif
+    args:
+      chdir: /home/ansible/
 
 ## Set up apache storm environment
 - hosts: apache_storm

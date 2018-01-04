@@ -21,9 +21,15 @@ def create_hosts():
     subprocess.call("docker start elasticsearch", shell=True)
     hosts += "elasticsearch ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
         get_port("elasticsearch").rstrip())
+    subprocess.call("docker start ldapd", shell=True)
+    hosts += "ldapd ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
+        get_port("ldapd").rstrip())
     subprocess.call("docker start rabbitmq", shell=True)
     hosts += "rabbitmq ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
         get_port("rabbitmq").rstrip())
+    subprocess.call("docker start pushpin", shell=True)
+    hosts += "pushpin ansible_host=localhost ansible_port={0} ansible_user=root\n".format(
+        get_port("pushpin").rstrip())
     subprocess.call("docker start tomcat", shell=True)
     hosts += "tomcat ansible_host=localhost ansible_port={0} ansible_user=root\n".format(get_port("tomcat").rstrip())
     print hosts

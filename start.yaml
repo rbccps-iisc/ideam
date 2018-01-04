@@ -14,6 +14,11 @@
   tasks:
   - include: tasks/tomcat/start_tomcat.yaml
 
+- hosts: ldapd
+  remote_user: ansible
+  tasks:
+  - include: tasks/ldapd/start_ldapd.yml
+
 - hosts: kong
   remote_user: ansible
   tasks:
@@ -23,6 +28,11 @@
   remote_user: ansible
   tasks:
   - include: tasks/apt_repo/start_apt_repo.yml
+
+- hosts: pushpin
+  remote_user: root
+  tasks:
+  - include: tasks/pushpin/start_pushpin.yml
 
 - hosts: elasticsearch
   remote_user: ansible
