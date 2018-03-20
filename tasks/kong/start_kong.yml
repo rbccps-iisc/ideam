@@ -14,6 +14,11 @@
   - name: Start postgresql service
     service: name=postgresql state=restarted
 
+  - name: Copy share.py
+    copy:
+      src: config/kong/share.py
+      dest: /home/ansible/share.py
+
   - name: Setting up Kong.conf file
     copy:
       src: ./config/kong/kong.conf
@@ -30,6 +35,16 @@
 
   - name: Start kong service
     service: name=kong state=restarted
+    become: yes
+    become_user: root
+
+  - name: Start supervisor
+    service: name=supervisor state=started
+    become: yes
+    become_user: root
+
+  - name: Reload supervisorctl
+    shell: supervisorctl reload
     become: yes
     become_user: root
 
