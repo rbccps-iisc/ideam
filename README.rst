@@ -2,6 +2,9 @@
 IoT Data Exchange & Analytics Middleware (IDEAM) for Smart Cities
 =================================================================
 
+.. image:: https://travis-ci.org/rbccps-iisc/ideam.svg?branch=master
+    :target: https://travis-ci.org/rbccps-iisc/ideam
+
 Web Page
 ========
 - Main Page: https://smartcity.rbccps.org/
@@ -78,7 +81,6 @@ After configuring the ``middleware.conf`` file, do the following steps.
 Comment
 =======
 - Please satisfy the requirements mentioned in ``middleware.conf`` file.
-- Password of the root user in docker containers for the 1.0.0 release is rbccps@123456. This will be removed in the later release.
 - If the setup fails at any stage for reasons like internet connection issues, you can continue the failed installation using the following command.
      ``python smartcity-middleware.py install --config-file middleware.conf -l kong,tomcat,hypercat,ldapd,elasticsearch,rabbitmq,apt_repo,pushpin``
 - The application will be serving with a self-signed certificate. If you want to use your certificate, have your .crt and .key file as ``config/kong/default_443.crt`` and ``config/kong/default_443.key`` respectively and do a fresh installation.
