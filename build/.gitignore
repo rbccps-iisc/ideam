@@ -1,0 +1,6 @@
+*
+*/
+!debian/
+!debian/*
+!.gitignore
+!build.sh
