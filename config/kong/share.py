@@ -5,6 +5,115 @@ from time import gmtime, strftime
 import subprocess
 
 
+def deregister(request):
+    consumer_id = ""
+    entity = ""
+    for name, value in request.headers.items():
+        if name == "X-Consumer-Username":
+            consumer_id = value
+    print(request.text)
+    print("consumer_id     : " + str(consumer_id))
+    e = json.loads(request.text)
+    if "entityID" in e:
+        entity = str(e["entityID"])
+    print("entityID        : " + str(entity))
+    if check_entity_exists(entity) is False:
+        return request.Response(json={'status': 'failure',
+                                      'response': "Entity doesn't exist."}, code=400)
+    if check_owner(consumer_id, entity) is False:
+        return request.Response(json={'status': 'failure',
+                                      'response': "Only owner can remove an entity."}, code=400)
+    # TODO: remove rbccps user to provider and his apikey ( which cant be used now, as its not there in ldap)
+    rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
+    rabbitmq_queue_delete(entity+".follow", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".configure", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".follow", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".protected", "rbccps", "rbccps@123")
+    rabbitmq_exchange_delete(entity+".public", "rbccps", "rbccps@123")
+    ldap_entity_delete(entity)
+    kong_consumer_delete(entity)
+    catalogue_delete(entity)
+    return request.Response(json={'status': 'success',
+                                  'response': entity + " entity removed. "}, code=200)
+
+
+def catalogue_delete(entity):
+    url = 'http://hypercat:8000/cat?id=' + entity
+    headers = {'pwd': 'local123'}
+    r = requests.delete(url, data=json.dumps({}), headers=headers)
+    print(r.text)
+
+
+def rabbitmq_queue_delete(qname, consumer_id, apikey):
+    url = 'http://rabbitmq:8000/queue'
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
+    data = {'name': qname}
+    r = requests.delete(url, data=json.dumps(data), headers=headers)
+    print(r.text)
+
+
+def kong_consumer_delete(name):
+    url = 'http://kong:8001/consumers/' + name
+    r = requests.delete(url)
+    print(r.text)
+
+
+def rabbitmq_exchange_delete(ename, consumer_id, apikey):
+    url = 'http://rabbitmq:8000/exchange'
+    headers = {'X-Consumer-Username': consumer_id, 'Apikey': apikey, 'Accept': 'application/json'}
+    data = {'name': ename}
+    r = requests.delete(url, data=json.dumps(data), headers=headers)
+    print(r.text)
+
+
+def ldap_entity_delete(uid):
+    cmd1 = """ldapdelete -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""".\
+        format(uid)
+    cmd = cmd1 + cmd2
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+        print(resp)
+    except subprocess.CalledProcessError as e:
+        print(e)
+
+
+def check_entity_exists(uid):
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" """.\
+        format(uid)
+    cmd = cmd1 + cmd2
+    resp = b""
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+    check = "result: 0 Success"
+    a = bytes(check, 'utf8') in resp
+    print("check_entity_exists: " + str(a))
+    return a
+
+
+def check_owner(owner, device):
+    cmd1 = """ldapsearch -H ldap://ldapd:8389 -D "cn=admin,dc=smartcity" -w secret0 -b"""
+    cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""".\
+        format(device, "owner")
+    cmd = cmd1 + cmd2
+    resp = b""
+    try:
+        resp = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+    if str(owner) == "":
+        return False
+    check = "owner: " + owner
+    a = bytes(check, 'utf8') in resp
+    print("check_owner :" + str(a))
+    return a
+
+
 def follow(request):
     consumer_id = ""
     apikey = ""
@@ -119,7 +228,7 @@ write: {3}""".format(device, consumer_id, read, write)
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80" or str(e)[-2:] == "68":# already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68":  # already exists
             ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -152,7 +261,7 @@ write: {3}""".format(device, consumer_id, read, write)
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
-        if str(e)[-2:] == "80" or str(e)[-2:] == "68": # already exists
+        if str(e)[-2:] == "80" or str(e)[-2:] == "68":  # already exists
             ldif = """dn: description={0},description=exchange,description=broker,uid={1},cn=devices,dc=smartcity
 changetype: modify
 replace: read
@@ -178,9 +287,8 @@ def share(request):
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
-    exchange = ""
     if "entityID" in e and "permission" in e:
-        entity = e["entityID"] #TODO: check if entity exists in LDAP
+        entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
     else:
         return request.Response(json={'status': 'failure',
@@ -208,7 +316,7 @@ def share(request):
         else:
             ldap_add_share_entry(entity, consumer_id, read="true", write="false")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
-        text="Read access given to " + entity + " at " + consumer_id + " exchange.\n"
+        text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
         if check_ldap_entry(entity, consumer_id, "read", "true"):
@@ -216,7 +324,7 @@ def share(request):
         else:
             ldap_add_share_entry(entity, consumer_id, read="false", write="true")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
-        text="Write access given to " + entity + " at " + exchange + " exchange.\n"
+        text = "Write access given to " + entity + " at " + exchange + " exchange.\n"
         return request.Response(text=text)
     elif permission == "read-write":
         ldap_add_share_entry(entity, consumer_id, read="true", write="true")
@@ -241,7 +349,7 @@ def unfollow(request):
     print("consumer_id     : " + str(consumer_id))
     e = json.loads(request.text)
     if "entityID" in e and "permission" in e:
-        entity = e["entityID"] #TODO: check if entity exists in LDAP
+        entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
     else:
         return request.Response(json={'status': 'failure',
@@ -268,14 +376,14 @@ def unfollow(request):
         if check_ldap_entry(consumer_id, entity, "write", "true"):
             ldap_add_share_entry(consumer_id, entity, read="false", write="true")
         else:
-            delete_ldap_entry(consumer_id, entity,"share")
+            delete_ldap_entry(consumer_id, entity, "share")
         unbind(consumer_id, entity + ".protected", "#", consumer_id, apikey)
     elif permission == "write":
         if check_ldap_entry(consumer_id, entity, "read", "true"):
             ldap_add_share_entry(consumer_id, entity, read="true", write="false")
         else:
             delete_ldap_entry(consumer_id, entity, "share")
-        if "." not in entity :
+        if "." not in entity:
             delete_ldap_entry(entity+".protected", consumer_id, "exchange")
         else:
             delete_ldap_entry(entity, consumer_id, "exchange")
@@ -315,7 +423,6 @@ def delete_ldap_entry(desc, uid, entry):
         print(resp)
     except subprocess.CalledProcessError as e:
         print(e)
-    print(resp)
 
 
 def unshare(request):
@@ -329,7 +436,6 @@ def unshare(request):
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
-    exchange = ""
     if "entityID" in e and "permission" in e:
         entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
@@ -388,4 +494,5 @@ app.router.add_route('/follow', follow, methods=['POST'])
 app.router.add_route('/follow', unfollow, methods=['DELETE'])
 app.router.add_route('/share', share, methods=['POST'])
 app.router.add_route('/share', unshare, methods=['DELETE'])
+app.router.add_route('/register', deregister, methods=['DELETE'])
 app.run(debug=True)
