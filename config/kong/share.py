@@ -20,19 +20,63 @@ def deregister(request):
 
     if check_entity_exists(entity) is False:
         # Remove any entry by the name mentioned
-        rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
-        rabbitmq_queue_delete(entity + ".follow", "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity + ".configure", "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity + ".follow", "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity + ".public", "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity + ".protected", "rbccps", "rbccps@123")
-        rabbitmq_exchange_delete(entity + ".private", "rbccps", "rbccps@123")
-        kong_consumer_delete(entity)
-        catalogue_delete(entity)
-        video_server_delete(entity)
-        return request.Response(json={'status': 'failure',
-                                      'response': "Access Denied"}, code=400)
+        try:
+            rabbitmq_queue_delete(entity, "rbccps", "rbccps@123")
+        except :
+            pass
+
+        try:
+            rabbitmq_queue_delete(entity + ".follow", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity, "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity + ".configure", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity + ".follow", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity + ".public", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity + ".protected", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            rabbitmq_exchange_delete(entity + ".private", "rbccps", "rbccps@123")
+        except:
+            pass
+
+        try:
+            kong_consumer_delete(entity)
+        except:
+            pass
+
+        try:
+            catalogue_delete(entity)
+        except:
+            pass
+
+        try:
+            video_server_delete(entity)
+        except:
+            pass
+
+        return request.Response(json={'status': 'success',
+                                      'response': "Partial entries deleted"}, code=200)
     if check_owner(consumer_id, entity) is False:
         return request.Response(json={'status': 'failure',
                                       'response': "Only owner can remove an entity."}, code=400)
