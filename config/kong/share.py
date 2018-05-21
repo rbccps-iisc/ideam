@@ -3,6 +3,9 @@ import json
 import requests
 from time import gmtime, strftime
 import subprocess
+from datetime import datetime
+from datetime import timedelta
+
 URL = "localhost"
 with open('/etc/url', 'r') as f:
     URL = f.readline()
@@ -202,14 +205,23 @@ def check_owner(owner, device):
 def follow(request):
     consumer_id = ""
     apikey = ""
+    ttl=""
+
     for name, value in request.headers.items():
         if name == "X-Consumer-Username":
             consumer_id = value
         elif name == "Apikey":
             apikey = value
+
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
+
+    try:
+        ttl=e['validity']
+    except:
+        return request.Response(json={'status': 'failure', 'response': 'Validity period not specified'}, code=400)
+
     if "entityID" in e and "permission" in e:
         entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
@@ -292,10 +304,35 @@ def publish(body, exchange, key, consumer_id, apikey):
     r = requests.post(url, data=json.dumps(data), headers=headers)
     print(r.text)
 
+def ldap_add_share_entry(device, consumer_id,ttl, read="false", write="false"):
+    today=datetime.now()
+    valid_until=""
 
-def ldap_add_share_entry(device, consumer_id, read="false", write="false"):
-    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/share.ldif -H ldap://ldapd:8389'
-    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w "secret0" -f /tmp/share.ldif -H ldap://ldapd:8389'
+    if ttl[-1]=="Y":
+        days=int(ttl[:-1])*365
+        valid_until=today+timedelta(days=days)
+    elif ttl[-1]=="M":
+        days=int(ttl[:-1])*30
+        valid_until=today+timedelta(days=days)
+    elif ttl[-1]=="D":
+        days=int(ttl[:-1])
+        valid_until=today+timedelta(days=days)
+    elif ttl[-1]=="h":
+        hours=int(ttl[:-1])
+        valid_until=today+timedelta(hours=hours)
+    elif ttl[-1]=="m":
+        minutes=int(ttl[:-1])
+        valid_until=today+timedelta(minutes=minutes)
+    elif ttl[-1]=="s":
+        seconds=int(ttl[:-1])
+        valid_until=today+timedelta(seconds=seconds)
+
+    valid_until=valid_until.timestamp()
+
+    print(valid_until)
+
+    add = 'ldapadd -x -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
+    modify = 'ldapmodify -a -D "cn=admin,dc=smartcity" -w secret0 -f /tmp/share.ldif -H ldap://ldapd:8389'
     ldif = """dn: description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity
 objectClass: broker
 objectClass: exchange
@@ -303,7 +340,8 @@ objectClass: queue
 objectClass: share
 description: {0}
 read: {2}
-write: {3}""".format(device, consumer_id, read, write)
+write: {3}
+validity: {4}""".format(device, consumer_id, read, write,valid_until)
     f = open('/tmp/share.ldif', 'w')
     f.write(ldif)
     f.close()
@@ -318,7 +356,10 @@ replace: read
 read: {2}
 -
 replace: write
-write: {3}""".format(device, consumer_id, read, write)
+write: {3}
+-
+replace: validity
+validity: {4}""".format(device, consumer_id, read, write,valid_until)
             f = open('/tmp/share.ldif', 'w')
             f.write(ldif)
             f.close()
@@ -362,14 +403,23 @@ write: {3}""".format(device, consumer_id, read, write)
 def share(request):
     consumer_id = ""
     apikey = ""
+    ttl=""
+
     for name, value in request.headers.items():
         if name == "X-Consumer-Username":
             consumer_id = value
-        elif name == "Apikey":
+        if name == "Apikey":
             apikey = value
+
     print(request.text)
     print("consumer_id  : " + str(consumer_id))
     e = json.loads(request.text)
+
+    try:
+        ttl=e['validity']
+    except:
+        return request.Response(json={'status': 'failure', 'response': 'Validity period not specified'}, code=400)
+
     if "entityID" in e and "permission" in e:
         entity = e["entityID"]  # TODO: check if entity exists in LDAP
         permission = e["permission"]
@@ -395,22 +445,22 @@ def share(request):
     if permission == "read":
         # This ldap_add_share_entry provides a list of people who subscribed.
         if check_ldap_entry(entity, consumer_id, "write", "true"):
-            ldap_add_share_entry(entity, consumer_id, read="true", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
         else:
-            ldap_add_share_entry(entity, consumer_id, read="true", write="false")
+            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="false")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
         return request.Response(text=text)
     elif permission == "write":
         if check_ldap_entry(entity, consumer_id, "read", "true"):
-            ldap_add_share_entry(entity, consumer_id, read="true", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
         else:
-            ldap_add_share_entry(entity, consumer_id, read="false", write="true")
+            ldap_add_share_entry(entity, consumer_id, ttl,read="false", write="true")
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Write access given to " + entity + " at " + exchange + " exchange.\n"
         return request.Response(text=text)
     elif permission == "read-write":
-        ldap_add_share_entry(entity, consumer_id, read="true", write="true")
+        ldap_add_share_entry(entity, consumer_id, ttl,read="true", write="true")
         bind(entity, consumer_id + ".protected", "#", consumer_id, apikey)
         ldap_add_exchange_entry(exchange, entity, read="false", write="true")
         text = "Read access given to " + entity + " at " + consumer_id + " exchange.\n"
