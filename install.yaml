@@ -70,17 +70,14 @@
 
   - name: Download Golang v1.9.2
     copy:
-      src: ./pkg/go1.9.2.linux-amd64.tar.gz
-      dest: ~/go1.9.2.linux-amd64.tar.gz
+      src: ./pkg/go1.10.3.linux-amd64.tar.gz
+      dest: ~/go1.10.3.linux-amd64.tar.gz
       owner: root
       group: root
       mode: 0644
 
   - name: Install Golang
-    unarchive:
-      src: ~/go1.9.2.linux-amd64.tar.gz
-      dest: /usr/local/
-      remote_src: True
+    shell: tar -C /usr/local -zxvf ~/go1.10.3.linux-amd64.tar.gz
 
   - name: Install git
     apt: name=git state=present
