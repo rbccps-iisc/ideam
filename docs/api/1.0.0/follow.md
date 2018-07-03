@@ -5,6 +5,7 @@ Used by entities (subscribers) to follow (express interest) about data produced 
 * `entityID`: Refers to the name of the entity whose data is required
 * `permission`: Can be read, write, read-write. Permission will be mentioned to interested entity.
 * `validity`: Can be in terms of Years(Y), Months(M), Days(D), Hours(H), Minutes(m) and Seconds(s)
+
 **URL** : `https://localhost:10443/api/1.0.0/follow`
 
 **Method** : `POST`
