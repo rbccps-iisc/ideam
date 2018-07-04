@@ -134,6 +134,26 @@ IDEAM API ENDPOINTS
 .. _unfollow.md : docs/api/1.0.0/unfollow.md
 .. _deregister.md : docs/api/1.0.0/deregister.md
 
+Customising the install
+============================
+
+If you want to install IDEAM for contributing to the project (or if you just want to customise the installation) then do the following:
+
+- ``git clone https://github.com/rbccps-iisc/ideam.git && cd ideam``
+- Make sure you have all the dependencies installed (as mentioned previously)
+- Run ``python ideam.py install -f ideam.conf``
+- If you want to install only some of the containers (maybe because some succeeded and some failed) you can install it by typing
+
+  ``python ideam.py install -f ideam.conf -l <comma separated list of containers>``
+
+- Once the installation completes, the containers need to be started by using
+
+  ``python ideam.py start``
+
+- If only some of the containers need to be started then use
+
+  ``python ideam.py start -l <comma separated list of containers>``
+
 
 NOTE
 ====
