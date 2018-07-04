@@ -145,6 +145,8 @@ If you want to install IDEAM for contributing to the project (or if you just wan
 - If you want to install only some of the containers (maybe because some succeeded and some failed) you can install it by typing
 
   ``python ideam.py install -f ideam.conf -l <comma separated list of containers>``
+  
+  For e.g ``python ideam.py install -f ideam.conf -l kong,rabbitmq,tomcat``
 
 - Once the installation completes, the containers need to be started by using
 
@@ -153,7 +155,17 @@ If you want to install IDEAM for contributing to the project (or if you just wan
 - If only some of the containers need to be started then use
 
   ``python ideam.py start -l <comma separated list of containers>``
+  
+  For e.g. ``python ideam.py start -l pushpin,hypercat``
+  
+A note on security
+==================
 
+The IDEAM stack has certain security mechanisms put in place that can be enabled by using
+
+``python ideam.py start --with-idps``
+
+IDPS stands for intrusion detection and prevention system. A system that is meant to protect the stack against common security attacks like DoS, DDoS, brute force and so on.
 
 NOTE
 ====
