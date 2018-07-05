@@ -158,6 +158,15 @@ If you want to install IDEAM for contributing to the project (or if you just wan
   
   For e.g. ``python ideam.py start -l pushpin,hypercat``
   
+Using the quick install option
+==============================
+
+All the docker images have been pre-built with the dependencies and the respective configuration files in the `IDEAM docker hub <https://hub.docker.com/r/ideam/>`_. Furthermore, these docker images use alpine as their base image, thereby being significantly smaller in size. To use this option in your IDEAM installation use:
+
+``python ideam.py install -f ideam.conf --quick``
+
+After the process completes, the middleware should be up and running. There is no need to run the start command.   
+  
 A note on security
 ==================
 
@@ -165,10 +174,10 @@ The IDEAM stack has certain security mechanisms put in place that can be enabled
 
 ``python ideam.py start --with-idps``
 
-IDPS stands for intrusion detection and prevention system. A system that is meant to protect the stack against common security attacks like DoS, DDoS, brute force and so on.
+IDPS stands for intrusion detection and prevention system. A system that is meant to protect the stack against common security attacks like DoS, DDoS, brute force and so on. A detailed document on security of the IDEAM stack can be found `here <https://docs.google.com/document/d/1yWzBSVf0yk_Y7alYG9Iu7Vgqi0NKPUvverJdGELWaUg/edit?usp=sharing>`_
 
-NOTE
-====
+Common problems
+===============
 - Installation in Linux machines can fail for the following reasons.
     - If you are in a corporate network that blocks Google DNS Servers, the ``ideam install`` command fails.
 
@@ -179,6 +188,14 @@ NOTE
       If this fails to set the DNS properly, try updating /etc/docker/daemon.json with the following (for systemd machines)
 
          { "dns": ["208.67.222.222", "208.67.220.220"] }
+       
+- If copying the RegisterAPI.war fails, then run
 
-- IDEAM has been tested on MacOS as well.
+  ``chown -R $(whoami) /var/ideam``
+  
+- If there is an error because of SSH keys then run
+
+  ``ssh-keygen -t rsa``
+
+- IDEAM has been tested on MacOS as well. However, the elasticsearch container might fail because of the ``vm.max_map_count`` setting. If this happens then try increasing the swap space of the docker VM 
 
