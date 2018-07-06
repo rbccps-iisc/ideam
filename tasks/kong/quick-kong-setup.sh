@@ -1,11 +1,18 @@
 #!/bin/ash
 echo "TrustedUserCAKeys /etc/ssh/ca-user-certificate-key.pub" >> /etc/ssh/sshd_config
+rm -r /tmp/tmux-*
+
 su postgres -c "/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data > /var/lib/postgresql/logfile 2>&1 &"
 
 until psql --host=localhost --username=postgres postgres -w &>/dev/null
 do
 sleep 0.1
 done
+
+#until 'pg_isready' 2>/dev/null; do
+#  >&2 echo "Postgres is unavailable - sleeping for 0.1 seconds"
+#  sleep 0.1
+#done
 
 kong start -c /etc/kong/kong.conf
 
