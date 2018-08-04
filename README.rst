@@ -19,8 +19,6 @@ Architecture
 Requirements
 ============
 - ``Docker``: `Installation steps for Docker in Ubuntu/Debian <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#os-requirements>`_
-- ``Ansible``: `Installation steps for Ansible <http://docs.ansible.com/ansible/latest/intro_installation.html>`_
-- ``ssh-keygen``: Generate a RSA Key Pair for the user who will install the script.
 - ``passlib``: Install ``python-pip`` package in ubuntu and then do ``pip install passlib``.
 
 Release
@@ -38,9 +36,9 @@ Configuration
 
 ideam.conf_ v1.0.0
 
-- Config file is located at ``/etc/ideam/ideam.conf``.
+- Config file is located at ``/etc/ideam/ideam.conf``. If you cloned the repository then it should be located in the same directory
 
-- The data files or docker persistent storage is at ``/var/ideam/data`` directory.
+- The data files or docker persistent storage is at ``/var/ideam/data``
 
 - The persistent storage can be changed by modifying the ``ideam.conf`` before installation.
 
@@ -50,26 +48,14 @@ ideam.conf_ v1.0.0
 Steps to Install
 ================
 
-After downloading and installing the deb file, do the following steps.
+After downloading and installing the deb file, you can install middleware by:
+``ideam install``
 
-+---------------------------------------+-----------------------------------------------------------------------------+
-| Installation                          | ``ideam install``   or if you cloned ``./ideam install``                    |
-+---------------------------------------+-----------------------------------------------------------------------------+
-| Start Ideam                           | ``ideam start``    or if you cloned ``./ideam start``                       |
-+---------------------------------------+-----------------------------------------------------------------------------+
-| Serving Ideam at                      | ``https://localhost:10443``                                                 |
-+---------------------------------------+-----------------------------------------------------------------------------+
+- If you want to install afresh then data can be removed from the volume mapped folders using ``ideam rm data``
 
+- To test the API endpoints of ideam use ``ideam test``.
 
-- The application will be serving with a self-signed certificate.
-  If you want to use your certificate, have your .crt and .key file as ``/usr/share/ideam/config/kong/default_443.crt`` and
-  ``/usr/share/ideam/config/kong/default_443.key`` respectively and do a fresh installation.
-
-- If you want to delete all the data stored as part of ideam, ``ideam rmdata``.
-
-- If you want to test all API endpoints of ideam, ``ideam test``.
-
-- If installation fails at some instance, all the time-dated logs are available at ``/tmp/ideam-%Y-%m-%d-%H-%M.log``.
+- All time-dated logs are available at ``/tmp/ideam-%Y-%m-%d-%H-%M.log``.
 
 
 
@@ -157,24 +143,6 @@ If you want to install IDEAM for contributing to the project (or if you just wan
   ``python ideam.py start -l <comma separated list of containers>``
   
   For e.g. ``python ideam.py start -l pushpin,catalogue``
-  
-Using the quick install option
-==============================
-
-All the docker images have been pre-built with the dependencies and the respective configuration files in the `IDEAM docker hub <https://hub.docker.com/r/ideam/>`_. Furthermore, these docker images use alpine as their base image, thereby being significantly smaller in size. To use this option in your IDEAM installation use:
-
-``python ideam.py install -f ideam.conf --quick``
-
-After the process completes, the middleware should be up and running. There is no need to run the start command.   
-  
-A note on security
-==================
-
-The IDEAM stack has certain security mechanisms put in place that can be enabled by using
-
-``python ideam.py start --with-idps``
-
-IDPS stands for intrusion detection and prevention system. A system that is meant to protect the stack against common security attacks like DoS, DDoS, brute force and so on. A detailed document on security of the IDEAM stack can be found `here <https://docs.google.com/document/d/1yWzBSVf0yk_Y7alYG9Iu7Vgqi0NKPUvverJdGELWaUg/edit?usp=sharing>`_
 
 Common problems
 ===============
@@ -192,10 +160,6 @@ Common problems
 - If copying the RegisterAPI.war fails, then run
 
   ``chown -R $(whoami) /var/ideam``
-  
-- If there is an error because of SSH keys then run
-
-  ``ssh-keygen -t rsa``
 
 - IDEAM has been tested on MacOS as well. However, the elasticsearch container might fail because of the ``vm.max_map_count`` setting. If this happens then try increasing the swap space of the docker VM 
 
