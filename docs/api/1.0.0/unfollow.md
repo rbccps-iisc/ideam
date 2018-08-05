@@ -5,6 +5,7 @@ To un-follow (remove interest) about a subscribed data, use the API with the fol
 * `apikey` of the entity requesting data access
 * `entityID` refers to the name of the entity whose data is required
 * `permission` can be read, write, read-write. Permission will be mentioned to interested entity.
+
 **URL** : `http://localhost/api/1.0.0/follow`
 
 **Method** : `DELETE`
