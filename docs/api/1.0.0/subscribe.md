@@ -6,7 +6,7 @@ To subscribe for data / commands from the middleware, use the API with the follo
 
 * `name` refers to the entityID
 
-**URL** : `https://localhost:10443/api/1.0.0/subscribe?name=<entityID>`
+**URL** : `http://localhost/api/1.0.0/subscribe?name=<entityID>`
 
 **Method** : `GET`
 
@@ -15,7 +15,7 @@ To subscribe for data / commands from the middleware, use the API with the follo
 **Curl example**
 
 ```bash
-curl -ik -X GET "https://localhost:10443/api/1.0.0/subscribe?name=streetlight" -H 'apikey: 219bf59341e24fe2901f52b0f8fbbff6'
+curl -ik -X GET "http://localhost/api/1.0.0/subscribe?name=streetlight" -H 'apikey: 219bf59341e24fe2901f52b0f8fbbff6'
 ```
 
 ## Success Response
