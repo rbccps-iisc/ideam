@@ -2,7 +2,7 @@
 
 Used by Application to get archived data of an entity from the database.
 
-**URL** : `https://localhost:10443/api/1.0.0/db`
+**URL** : `http://localhost/api/1.0.0/db`
 
 **Method** : `GET`
 
@@ -11,7 +11,7 @@ Used by Application to get archived data of an entity from the database.
 **Curl example**
 
 ```bash
-curl --insecure -i -X GET https://localhost:10443/api/1.0.0/db \
+curl --insecure -i -X GET http://localhost/api/1.0.0/db \
 -H 'apikey: 5667f573271f47fd847a1bfe922daf30' \
 -d '{ "query": { "match": { "key": "streetlight" } } }'
 ```
