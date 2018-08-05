@@ -48,7 +48,7 @@ ideam.conf_ v1.0.0
 Steps to Install
 ================
 
-After downloading and installing the deb file, you can install middleware by:
+- After downloading and installing the deb file, you can install middleware by:
 ``ideam install``
 
 - If you want to install afresh then data can be removed from the volume mapped folders using ``ideam rm data``
