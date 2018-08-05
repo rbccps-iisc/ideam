@@ -7,7 +7,7 @@ For details on schema, visit following URL https://github.com/rbccps-iisc/smart_
 
 `Note: a guest User is available in the ideam with apikey as guest.
 
-**URL** : `https://localhost:10443/api/1.0.0/register`
+**URL** : `http://localhost/api/1.0.0/register`
 
 **Method** : `POST`
 
@@ -17,7 +17,7 @@ For details on schema, visit following URL https://github.com/rbccps-iisc/smart_
 
 ```bash
 curl -X POST \
-  https://localhost:10443/api/1.0.0/register \
+  http://localhost/api/1.0.0/register \
   -H 'apikey: guest' \
   -H 'content-type: application/json' \
   -k -d '{
