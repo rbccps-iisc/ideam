@@ -4,7 +4,7 @@ To access video data from the middleware, devices can use this API with the foll
 
 * `apikey` is required. This apikey is obtained during the registration of an entity. (its not user apikey eg. guest)
 
-**URL** : `https://localhost:10443/api/1.0.0/video.rtmp`
+**URL** : `http://localhost/api/1.0.0/video.rtmp`
 
 **Method** : `GET`
 
@@ -13,7 +13,7 @@ To access video data from the middleware, devices can use this API with the foll
 **Curl example**
 
 ```bash
-curl --insecure -i -X GET https://localhost:10443/api/1.0.0/video.rtmp?stream=stream_name&id=entityid&apikey=entity_api_key
+curl --insecure -i -X GET http://localhost/api/1.0.0/video.rtmp?stream=stream_name&id=entityid&apikey=entity_api_key
 
 ```
 
