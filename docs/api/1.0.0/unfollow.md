@@ -5,7 +5,7 @@ To un-follow (remove interest) about a subscribed data, use the API with the fol
 * `apikey` of the entity requesting data access
 * `entityID` refers to the name of the entity whose data is required
 * `permission` can be read, write, read-write. Permission will be mentioned to interested entity.
-**URL** : `https://localhost:10443/api/1.0.0/follow`
+**URL** : `http://localhost/api/1.0.0/follow`
 
 **Method** : `DELETE`
 
@@ -15,7 +15,7 @@ To un-follow (remove interest) about a subscribed data, use the API with the fol
 Entity with `apikey` 4d04c10f5bf24d4f8aa93529e34wer is requesting entity `camera` to remove `read` permission. The permission will be removed immediately.
 
 ```bash
-curl --insecure -i -X DELETE https://localhost:10443/api/1.0.0/follow \
+curl --insecure -i -X DELETE http://localhost/api/1.0.0/follow \
 -H 'apikey: 4d04c10f5bf24d4f8aa93529e34wer' \
 -d '{"entityID": "camera", "permission":"read"}'
 ```
