@@ -57,7 +57,7 @@ echo -e "${YELLOW}[  INFO  ] ${NC}Adding necessary permissions to files and fold
 #TODO give necessary permissions only to the required user
 
 docker exec kong chmod 777 /etc/install.sh
-docker exec kong chmod -R 777 /var/lib/postgresql 
+docker exec kong chmod -R 777 /var/lib/postgresql
 docker exec kong chmod -R 777 /tmp
 
 if [ $? -eq 0 ]; then
