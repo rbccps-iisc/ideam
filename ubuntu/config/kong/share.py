@@ -146,6 +146,7 @@ def ldap_entity_delete(uid):
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" -r""". \
         format(uid)
     cmd = cmd1 + cmd2
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
     try:
         resp = subprocess.check_output(cmd, shell=True)
         print(resp)
@@ -357,6 +358,7 @@ validity: {4}""".format(device, consumer_id, read, write, valid_until)
     f.write(str.encode(ldif))
     f.close()
     try:
+        add = add.replace(";","").replace("'","").replace("|","").replace("$","")
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
@@ -377,6 +379,7 @@ validity: {4}""".format(device, consumer_id, read, write, valid_until)
             f = tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
             f.write(str.encode(ldif))
             f.close()
+            modify = modify.replace(";","").replace("'","").replace("|","").replace("$","")
             resp = subprocess.check_output(modify, shell=True)
             print(resp)
 
@@ -400,6 +403,7 @@ write: {3}""".format(device, consumer_id, read, write)
     f.write(str.encode(ldif))
     f.close()
     try:
+        add = add.replace(";","").replace("'","").replace("|","").replace("$","")
         resp = subprocess.check_output(add, shell=True)
         print(resp)
     except subprocess.CalledProcessError as e:
@@ -417,6 +421,7 @@ write: {3}""".format(device, consumer_id, read, write)
             f = tempfile.NamedTemporaryFile(suffix='.ldif',delete=False)
             f.write(str.encode(ldif))
             f.close()
+            modify = modify.replace(";","").replace("'","").replace("|","").replace("$","")
             resp = subprocess.check_output(modify, shell=True)
             print(resp)
 
