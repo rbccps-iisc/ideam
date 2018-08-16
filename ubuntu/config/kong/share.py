@@ -159,7 +159,7 @@ def check_entity_exists(uid):
         format(uid)
     cmd = cmd1 + cmd2
     
-    cmd = cmd.replace(";","").replace("'","").replace("\"","").replace("|","").replace("$","")
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
     
     resp = b""
     try:
@@ -177,7 +177,7 @@ def check_entity_is_video(uid):
     cmd2 = """ "description=video,uid={0},cn=devices,dc=smartcity" """. \
         format(uid)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("\"","").replace("|","").replace("$","")
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
     
     resp = b""
     try:
@@ -195,7 +195,7 @@ def check_owner(owner, device):
     cmd2 = """ "uid={0},cn=devices,dc=smartcity" {1}""". \
         format(device, "owner")
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("\"","").replace("|","").replace("$","")
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     resp = b""
     try:
@@ -558,7 +558,7 @@ def check_ldap_entry(desc, uid, attribute, check_parameter):
     cmd2 = """ "description={0},description=share,description=broker,uid={1},cn=devices,dc=smartcity" {2}""". \
         format(desc, uid, attribute)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("\"","").replace("|","").replace("$","")
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     resp = b""
     try:
@@ -576,7 +576,7 @@ def delete_ldap_entry(desc, uid, entry):
     cmd2 = """ "description={0},description={2},description=broker,uid={1},cn=devices,dc=smartcity" """. \
         format(desc, uid, entry)
     cmd = cmd1 + cmd2
-    cmd = cmd.replace(";","").replace("'","").replace("\"","").replace("|","").replace("$","")
+    cmd = cmd.replace(";","").replace("'","").replace("|","").replace("$","")
 
     try:
         resp = subprocess.check_output(cmd, shell=True)
