@@ -10,7 +10,8 @@ if os.path.exists("/etc/ideam/ideam.conf"):
 
 import modules.start as container_start
 import modules.install as container_setup
-from modules.generate_password import set_passwords
+import modules.setup as setup
+import modules.generate_password as password
 from datetime import datetime
 from modules.utils import setup_logging
 import argparse
@@ -42,6 +43,14 @@ def install(arguments):
         container_setup.remove_volumes(["apigateway","broker","cat","elk","ldapd","webserver"],log_file=arguments.log_file)
         set_passwords(arguments.config_file)
         container_setup.docker_setup(log_file=arguments.log_file,config_path=arguments.config_file)
+        setup.initial_setup(log_file=arguments.log_file)
+        password.update_passwords(arguments.config_file)
+
+#       cmd = "sh /setup/setup_database.sh databasequeue"
+        # initial_setup.setup_database(cmd, success_msg="Created admin user ",
+        #                       failure_msg="Creation of admin user failed.",
+        #                       log_file=arguments.log_file,
+        #                       exit_on_fail=True)
 
 def start(arguments):
 

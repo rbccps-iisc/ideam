@@ -274,7 +274,6 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
 
     elif server == "elasticsearch":
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
-
         cmd = "docker run -d -v {2}:{3} --net=mynet " \
               "--hostname={0} --cap-add=NET_ADMIN -p 127.0.0.1:{4}:5601 --name={0} {1}".format(server, image, storage_host, storage_guest, kibana)
         try:
