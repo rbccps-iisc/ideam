@@ -9,16 +9,8 @@ Architecture
 ============
 
 .. image:: hourglass.png
-    :width: 700px
-    :align: center
-    :height: 250px
-    :alt: alternate text
 
 .. image:: ms_arch.png
-    :width: 700px
-    :align: center
-    :height: 250px
-    :alt: alternate text
 
 Resources
 =========
@@ -165,3 +157,5 @@ Publishing from your device
   This will publish ``{"body": "testdata"}`` to the exchange ``teststreetlight.protected``
 
 * That's it! You can similarly register more devices and apps with the middleware.
+
+For detailed guides and resources visit https://cdx.readthedocs.io/en/latest/
