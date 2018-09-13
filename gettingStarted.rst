@@ -1,5 +1,5 @@
 =================================================================
-IoT Data Exchange & Analytics Middleware (IDEAM) for Smart Cities
+City Data Exchange & Analytics Middleware (CDX) for Smart Cities
 =================================================================
 
 .. image:: https://travis-ci.org/rbccps-iisc/ideam.svg?branch=master
