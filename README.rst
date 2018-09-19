@@ -15,7 +15,7 @@ Architecture
 Resources
 =========
 - About: http://www.rbccps.org/smart-city/
-- Extensive Documentation: https://cdx.readthedocs.io/en/latest/
+- Detailed Documentation: https://cdx.readthedocs.io/en/latest/
 
 Getting Started
 -------------
